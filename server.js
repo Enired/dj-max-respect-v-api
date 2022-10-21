@@ -7,11 +7,38 @@ const PORT = process.env.PORT || 5000
 const {
   GraphQLSchema,
   GraphQLObjectType,
-  graphql
+  graphql,
+  getDescription,
+  GraphQLString
 } = require('graphql')
 
+const rootQuery = new GraphQLObjectType({
+  name: 'Query',
+  description: 'Root Query',
+  fields: () => ({
+    song: {
+      type: GraphQLString,
+      description: 'A DJ Max Respect Song',
+      resolve: () => 'Univus'
+    }
+  })
+
+})
+
+// const rootMutation = new GraphQLObjectType({
+//   name: 'Mutation',
+//   description: 'Root Mutation',
+//   fields: ()=> ({
+
+//   })
+// })
+
 const schema = new GraphQLSchema({
-  
+  query: rootQuery,
+  // mutation : rootMutation,
+  field: () => ({
+
+  })
 })
 
 app.use('/graphql', expressGraphQL({
