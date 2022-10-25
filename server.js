@@ -20,27 +20,12 @@ const {
 } = require('graphql');
 
 
-let songs;
-let levels;
-const getAllData = () => {
-  const client = new pg.Client(dbConnection)
-  client.connect((err) => {
-    if (err) {
-      return console.error('Error connecting to Postgres DB');
-    }
+// let songs;
+// let levels;
+// const getAllData = () => {
 
-    const query = `SELECT * FROM songs`;
-    return(console.log(client.query(query, (err, result) => {
-      if (err) {
-        console.error('Error with query', err);
-      }
-      client.end();
-      return result.rows;
 
-    })));
-  });
-
-}
+// }
 
 const songs1 = [
   {
@@ -74,8 +59,17 @@ const rootQuery = new GraphQLObjectType({
       type: new GraphQLList(songType),
       description: 'DJ Max Respect Songs',
       resolve:async () => {
-        await getAllData()
-        return songs;
+        let songs;
+        const client = new pg.Client(dbConnection)
+        await client.connect()
+        .catch((err)=>console.log('Error connecting to DB', err))
+
+        const query = 'Select * from songs'
+        await client.query(query)
+        .then((res)=>{songs = res.rows})
+        .then(()=>client.end())
+        .catch((err)=>console.log('Error with query', err))
+        return songs
       }
     }
   })
@@ -100,6 +94,6 @@ app.use('/graphql', expressGraphQL({
   schema: schema,
 }));
 app.listen(PORT, () => {
-  getAllData()
+  // getAllData()
   console.log('Server up');
 });
