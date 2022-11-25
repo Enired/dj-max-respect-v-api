@@ -20,21 +20,27 @@ const {
 } = require('graphql');
 
 //Returns an Array of Song Objects
-const getSongs = async () => {
+const getSongs = async (args) => {
   let songs;
   const client = new pg.Client(dbConnection);
   await client.connect()
     .catch((err) => console.log('Error connecting to DB', err));
 
-  const query = 'Select * from songs';
-  await client.query(query)
+  let query = 'Select * from songs';
+  const values = []
+  if(args.name){
+    query += ` where lower(name) like lower($1)`
+    values.push(`%${args.name}%`)
+  }
+  console.log(query)
+  await client.query(query, values)
     .then((res) => { songs = res.rows; })
     .then(() => client.end())
     .catch((err) => console.log('Error with query', err));
   return songs;
 };
 //Returns an Array of Level Objects
-const getLevels = async () => {
+const getLevels = async (args) => {
   let levels;
   const client = new pg.Client(dbConnection);
   await client.connect()
@@ -92,8 +98,9 @@ const rootQuery = new GraphQLObjectType({
     songs: {
       type: new GraphQLList(songType),
       description: 'DJ Max Respect Songs',
-      resolve: async () => {
-        const songs = getSongs();
+      args: {name:{type: GraphQLString}, artist: {type: GraphQLString}},
+      resolve: async (parent, args) => {
+        const songs = getSongs(args);
         return songs;
       }
     },
@@ -106,31 +113,34 @@ const rootQuery = new GraphQLObjectType({
         return levels;
       }
     },
-    level: {
-      type: levelType,
-      description: 'One DJ Max Respect V level',
-      args: { difficulty: { type: GraphQLString }, button_mode: {type: GraphQLString} },
-      resolve: async (parent,args) => {
-        let level;
-        const client = new pg.Client(dbConnection);
-        await client.connect()
-          .catch((err) => console.log('Error connecting to DB', err));
+    // level: {
+    //   type: GraphQLList(levelType),
+    //   description: 'One DJ Max Respect V level',
+    //   args: { difficulty: { type: GraphQLString }},
+    //   resolve: async (parent,args) => {
+    //     let level;
+    //     const client = new pg.Client(dbConnection);
+    //     await client.connect()
+    //       .catch((err) => console.log('Error connecting to DB', err));
 
-        let query;
-        let searchParam;
+    //     let query;
+    //     let searchParam;
 
-        if(args.difficulty){
-          query = 'Select * from levels where difficulty like $1';
-        }
+    //     if(args.difficulty){
+    //       query = 'Select * from levels where difficulty like $1';
+    //     }
+
+    //     console.log(query)
 
    
-        await client.query(query, [args.difficulty])
-        .then((res)=>{level = res.rows})
-        .catch((err)=>{console.log('Oops', err)})
-        return level
+    //     await client.query(query, [args.difficulty])
+    //     .then((res)=>{level = res.rows})
+    //     .catch((err)=>{console.log('Oops', err)})
+    //     console.log(level)
+    //     return level
 
-      }
-    }
+    //   }
+    // }
   })
 
 });
