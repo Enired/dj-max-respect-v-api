@@ -32,6 +32,19 @@ const getSongs = async (args) => {
     query += ` where lower(name) like lower($1)`
     values.push(`%${args.name}%`)
   }
+
+  if(args.artist){
+    if(values.length > 0){
+      query += ` or lower(artist) like lower($2)`
+      values.push(`%${args.artist}%`)
+    }
+    else{
+      query += ` where lower(artist) like lower($1)`
+      values.push(`%${args.artist}%`)
+    }
+  }
+
+
   console.log(query)
   await client.query(query, values)
     .then((res) => { songs = res.rows; })
