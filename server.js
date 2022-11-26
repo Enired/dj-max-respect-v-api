@@ -175,6 +175,11 @@ app.use('/graphql', expressGraphQL({
   graphiql: true,
   schema: schema,
 }));
+app.post('/test', expressGraphQL({
+  graphiql: true,
+  schema: schema,
+}));
+
 app.listen(PORT, () => {
   console.log('Server up');
 });
