@@ -87,8 +87,8 @@ const levelType = new GraphQLObjectType({
     song_id: { type: GraphQLInt },
     song: {
       type: songType,
-      resolve: async (level) => {
-        const songs = await getSongs([]); //Have to pass in empty array for lack of args arg.
+      resolve: async (level, args) => {
+        const songs = await getSongs(args); //Have to pass in empty array for lack of args arg.
         return songs.find(song => song.id === level.song_id);
       }
     },
