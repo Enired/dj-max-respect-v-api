@@ -24,15 +24,13 @@ const getSongs = async (args) => {
   let songs;
   const client = new pg.Client(dbConnection);
   await client.connect()
-    .catch((err) => console.log('Error connecting to DB', err));
-
+  .catch((err) => console.log('Error connecting to DB', err));
   let query = 'Select * from songs';
   const values = []
   if(args.name){
     query += ` where lower(name) like lower($1)`
     values.push(`%${args.name}%`)
   }
-
   if(args.artist){
     if(values.length > 0){
       query += ` or lower(artist) like lower($2)`
@@ -63,7 +61,7 @@ const getLevels = async (args) => {
   await client.query(query)
     .then((res) => { levels = res.rows; })
     .then(() => client.end())
-    .catch((err) => console.log('Error with query', err));
+    .catch((err) =>{ console.log('Error with query', err);});
   return levels;
 };
 
@@ -90,7 +88,7 @@ const levelType = new GraphQLObjectType({
     song: {
       type: songType,
       resolve: async (level) => {
-        const songs = await getSongs();
+        const songs = await getSongs([]); //Have to pass in empty array for lack of args arg.
         return songs.find(song => song.id === level.song_id);
       }
     },
