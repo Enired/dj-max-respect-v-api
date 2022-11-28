@@ -74,7 +74,14 @@ const songType = new GraphQLObjectType({
     id: { type: GraphQLInt },
     name: { type: GraphQLString },
     artist: { type: GraphQLString },
-    dlc: { type: GraphQLBoolean }
+    dlc: { type: GraphQLBoolean },
+    levels: {
+      type: GraphQLList(levelType),
+      resolve: async (song, args) => {
+        const levels = await getLevels(args);
+        return levels.filter(level => level.song_id === song.id) || [];
+      }
+    }
   })
 });
 
