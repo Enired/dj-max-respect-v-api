@@ -42,8 +42,6 @@ const getSongs = async (args) => {
     }
   }
 
-
-  console.log(query)
   await client.query(query, values)
     .then((res) => { songs = res.rows; })
     .then(() => client.end())
@@ -95,7 +93,7 @@ const levelType = new GraphQLObjectType({
     song: {
       type: songType,
       resolve: async (level, args) => {
-        const songs = await getSongs(args); //Have to pass in empty array for lack of args arg.
+        const songs = await getSongs(args);
         return songs.find(song => song.id === level.song_id);
       }
     },
